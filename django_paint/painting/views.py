@@ -1,0 +1,24 @@
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render_to_response
+from painting.models import Paintings
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt
+def paints(request):
+    if request.method == 'GET':
+        all_data = Paintings.objects.all()
+        py_all = {}
+        fnames = []
+        for each in all_data:
+            py_all[each.fname] = each.img_data
+            fnames.append(each.fname)
+        return render_to_response('paint.html', {'fnames': fnames,'py_all': json.dumps(py_all)})
+    elif request.method == 'POST':
+        file_name = request.POST['fname']
+        data = request.POST['whole_data']
+        cvs_data = Paintings(fname=file_name, img_data=data)
+        cvs_data.save()
+        return HttpResponseRedirect('/')
+    
+    
